@@ -39,17 +39,21 @@ fi
 
 # 内核构建环境信息
 if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
-	TIMESTAMP=$(date +"%Y-%m-%d %A %H:00:00 %Z")
+	TIMESTAMP=$(date +"%Y %m %d %A %H:00:00 %Z")
 else
 	TIMESTAMP=$KBUILD_BUILD_TIMESTAMP
 fi
 if test -z "$KBUILD_BUILD_USER"; then
-	LINUX_COMPILE_BY="victor"
+	LINUX_COMPILE_BY="Victor"
 else
 	LINUX_COMPILE_BY=$KBUILD_BUILD_USER
 fi
 if test -z "$KBUILD_BUILD_HOST"; then
+<<<<<<< HEAD
 	LINUX_COMPILE_HOST="localhost"
+=======
+	LINUX_COMPILE_HOST="Linux"
+>>>>>>> 87978bff4c532b4a8025e211f55cb0e16f3918ad
 else
 	LINUX_COMPILE_HOST=$KBUILD_BUILD_HOST
 fi
