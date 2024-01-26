@@ -51,9 +51,6 @@ fi
 if test -z "$KBUILD_BUILD_HOST"; then
 <<<<<<< HEAD
 	LINUX_COMPILE_HOST="localhost"
-=======
-	LINUX_COMPILE_HOST="Linux"
->>>>>>> 87978bff4c532b4a8025e211f55cb0e16f3918ad
 else
 	LINUX_COMPILE_HOST=$KBUILD_BUILD_HOST
 fi
