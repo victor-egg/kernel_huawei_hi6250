@@ -4,7 +4,10 @@
 #include "linux/err.h"
 #include "linux/init.h"
 #include "linux/init_task.h"
+<<<<<<< HEAD
 #include "linux/irqflags.h"
+=======
+>>>>>>> 3feb43bd4ec5caf0b12252878b40717d0483929a
 #include "linux/kallsyms.h"
 #include "linux/kernel.h"
 #include "linux/kprobes.h"
@@ -224,6 +227,14 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 		return 0;
 	}
 
+<<<<<<< HEAD
+=======
+	static uid_t last_failed_uid = -1;
+	if (last_failed_uid == current_uid().val) {
+		return 0;
+	}
+
+>>>>>>> 3feb43bd4ec5caf0b12252878b40717d0483929a
 #ifdef CONFIG_KSU_DEBUG
 	pr_info("option: 0x%x, cmd: %ld\n", option, arg2);
 #endif
@@ -235,6 +246,71 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 			}
 			return 0;
 		}
+<<<<<<< HEAD
+=======
+		if (ksu_is_manager_uid_valid()) {
+#ifdef CONFIG_KSU_DEBUG
+			pr_info("manager already exist: %d\n",
+				ksu_get_manager_uid());
+#endif
+			return 0;
+		}
+
+		// someone wants to be root manager, just check it!
+		// arg3 should be `/data/user/<userId>/<manager_package_name>`
+		char param[128];
+		if (ksu_strncpy_from_user_nofault(param, arg3, sizeof(param)) ==
+		    -EFAULT) {
+#ifdef CONFIG_KSU_DEBUG
+			pr_err("become_manager: copy param err\n");
+#endif
+			goto block;
+		}
+
+		// for user 0, it is /data/data
+		// for user 999, it is /data/user/999
+		const char *prefix;
+		char prefixTmp[64];
+		int userId = current_uid().val / 100000;
+		if (userId == 0) {
+			prefix = "/data/data";
+		} else {
+			snprintf(prefixTmp, sizeof(prefixTmp), "/data/user/%d",
+				 userId);
+			prefix = prefixTmp;
+		}
+
+		if (startswith(param, (char *)prefix) != 0) {
+			pr_info("become_manager: invalid param: %s\n", param);
+			goto block;
+		}
+
+		// stat the param, app must have permission to do this
+		// otherwise it may fake the path!
+		struct path path;
+		if (kern_path(param, LOOKUP_DIRECTORY, &path)) {
+			pr_err("become_manager: kern_path err\n");
+			goto block;
+		}
+		uid_t inode_uid = path.dentry->d_inode->i_uid.val;
+		path_put(&path);
+		if (inode_uid != current_uid().val) {
+			pr_err("become_manager: path uid != current uid\n");
+			goto block;
+		}
+		char *pkg = param + strlen(prefix);
+		pr_info("become_manager: param pkg: %s\n", pkg);
+
+		bool success = become_manager(pkg);
+		if (success) {
+			if (copy_to_user(result, &reply_ok, sizeof(reply_ok))) {
+				pr_err("become_manager: prctl reply error\n");
+			}
+			return 0;
+		}
+	block:
+		last_failed_uid = current_uid().val;
+>>>>>>> 3feb43bd4ec5caf0b12252878b40717d0483929a
 		return 0;
 	}
 
@@ -666,7 +742,11 @@ void __init ksu_lsm_hook_init(void)
 #endif
 }
 
+<<<<<<< HEAD
 #else
+=======
+#ifdef MODULE
+>>>>>>> 3feb43bd4ec5caf0b12252878b40717d0483929a
 static int override_security_head(void *head, const void *new_head, size_t len)
 {
 	unsigned long base = (unsigned long)head & PAGE_MASK;
@@ -684,9 +764,13 @@ static int override_security_head(void *head, const void *new_head, size_t len)
 	if (!addr) {
 		return -ENOMEM;
 	}
+<<<<<<< HEAD
 	local_irq_disable();
 	memcpy(addr + offset, new_head, len);
 	local_irq_enable();
+=======
+	memcpy(addr + offset, new_head, len);
+>>>>>>> 3feb43bd4ec5caf0b12252878b40717d0483929a
 	vunmap(addr);
 	return 0;
 }
@@ -787,7 +871,11 @@ static void *find_head_addr(void *security_ptr, int *index)
 		}                                                              \
 	} while (0)
 
+<<<<<<< HEAD
 void __init ksu_lsm_hook_init(void)
+=======
+void __init ksu_lsm_hook_init_hack(void)
+>>>>>>> 3feb43bd4ec5caf0b12252878b40717d0483929a
 {
 	void *cap_prctl = GET_SYMBOL_ADDR(cap_task_prctl);
 	void *prctl_head = find_head_addr(cap_prctl, NULL);
@@ -837,6 +925,14 @@ void __init ksu_lsm_hook_init(void)
 void __init ksu_core_init(void)
 {
 	ksu_lsm_hook_init();
+<<<<<<< HEAD
+=======
+
+#else
+	pr_info("ksu_lsm_hook_init hack!!!!\n");
+	ksu_lsm_hook_init_hack();
+#endif
+>>>>>>> 3feb43bd4ec5caf0b12252878b40717d0483929a
 }
 
 void ksu_core_exit(void)
