@@ -1,15 +1,8 @@
 kernelsu-objs := ksu.o
 kernelsu-objs += allowlist.o
 kernelsu-objs += apk_sign.o
-<<<<<<< HEAD
 kernelsu-objs += sucompat.o
 kernelsu-objs += throne_tracker.o
-=======
-kernelsu-objs += module_api.o
-kernelsu-objs += sucompat.o
-kernelsu-objs += uid_observer.o
-kernelsu-objs += manager.o
->>>>>>> 3feb43bd4ec5caf0b12252878b40717d0483929a
 kernelsu-objs += core_hook.o
 kernelsu-objs += ksud.o
 kernelsu-objs += embed_ksud.o
@@ -21,15 +14,7 @@ kernelsu-objs += selinux/rules.o
 ccflags-y += -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
 ccflags-y += -I$(objtree)/security/selinux -include $(srctree)/include/uapi/asm-generic/errno.h
 
-<<<<<<< HEAD
 obj-$(CONFIG_KSU) += kernelsu.o
-=======
-ifndef KSU_MODULE
-obj-y += kernelsu.o
-else
-obj-m += kernelsu.o
-endif
->>>>>>> 3feb43bd4ec5caf0b12252878b40717d0483929a
 
 # .git is a text file while the module is imported by 'git submodule add'.
 ifeq ($(shell test -e $(srctree)/$(src)/../.git; echo $$?),0)
